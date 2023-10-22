@@ -5,3 +5,4 @@
 metals.sbt
 **/target
 .vscode/settings.json
+.idea
