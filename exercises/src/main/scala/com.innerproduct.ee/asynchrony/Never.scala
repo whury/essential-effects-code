@@ -1,6 +1,7 @@
 package com.innerproduct.ee.asynchrony
 
 import cats.effect._
+import com.innerproduct.ee.debug._
 
 object Never extends IOApp.Simple {
   def run: IO[Unit] =
