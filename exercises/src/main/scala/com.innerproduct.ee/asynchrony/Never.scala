@@ -1,7 +1,6 @@
 package com.innerproduct.ee.asynchrony
 
 import cats.effect._
-import com.innerproduct.ee.debug._
 
 object Never extends IOApp.Simple {
   def run: IO[Unit] =
@@ -9,5 +8,5 @@ object Never extends IOApp.Simple {
       .guarantee(IO.println("i guess never is now"))
 
   val never: IO[Nothing] =
-    IO.async_(???) // <1>
+    IO.async_(_ => ()) // <1>
 }

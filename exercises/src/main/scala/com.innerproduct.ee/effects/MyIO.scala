@@ -7,6 +7,7 @@ case class MyIO[A](unsafeRun: () => A) {
   def flatMap[B](f: A => MyIO[B]): MyIO[B] =
     MyIO(() => f(unsafeRun()).unsafeRun())
 }
+
 object MyIO {
   def putStr(s: => String): MyIO[Unit] =
     MyIO(() => println(s))

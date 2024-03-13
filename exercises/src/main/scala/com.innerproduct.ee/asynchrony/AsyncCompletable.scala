@@ -1,16 +1,14 @@
 package com.innerproduct.ee.asynchrony
 
 import cats.effect._
-import com.innerproduct.ee.debug._
 import java.util.concurrent.CompletableFuture
 import scala.jdk.FunctionConverters._
 
 object AsyncCompletable extends IOApp.Simple {
-  def run: IO[Unit] =
-    effect.debug().void
+  def run: IO[Unit] = effect.void
 
   val effect: IO[String] =
-    fromCF(IO(cf()))
+    debugCF(IO(cf())) >> debugCF(IO(failingFuture)) !> debugCF(IO(cf("yeah!")))
 
   def fromCF[A](cfa: IO[CompletableFuture[A]]): IO[A] =
     cfa.flatMap { fa =>
@@ -29,6 +27,11 @@ object AsyncCompletable extends IOApp.Simple {
       }
     }
 
-  def cf(): CompletableFuture[String] =
-    CompletableFuture.supplyAsync(() => "woo!") // <3>
+  def debugCF[A](cfa: IO[CompletableFuture[A]]): IO[A] = fromCF(cfa).debug()
+
+  def cf(msg: String = "woo!"): CompletableFuture[String] =
+    CompletableFuture.supplyAsync(() => msg) // <3>
+
+  def failingFuture: CompletableFuture[String] =
+    CompletableFuture.failedFuture(new IllegalStateException("Something wrong!"))
 }
