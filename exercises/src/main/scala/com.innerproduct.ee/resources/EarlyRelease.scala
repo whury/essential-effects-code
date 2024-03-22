@@ -13,22 +13,19 @@ object EarlyRelease extends IOApp.Simple {
   val dbConnectionResource: Resource[IO, DbConnection] =
     for {
       config <- configResource
-      conn <- DbConnection.make(config.connectURL)
+      conn   <- DbConnection.make(config.connectURL)
     } yield conn
 
-  lazy val configResource: Resource[IO, Config] = // <1>
-    for {
-      source <- sourceResource
-      config <- Resource.eval(Config.fromSource(source)) // <2>
-    } yield config
+  lazy val configResource: Resource[IO, Config] = { // <1>
+    val config = sourceResource.use(source => Config.fromSource(source))
+    Resource.eval(config)
+  }
 
   lazy val sourceResource: Resource[IO, Source] =
     Resource.make(
       debugWithThread(s"> opening Source to config")
         *> IO(Source.fromString(config))
-    )(source =>
-      debugWithThread(s"< closing Source to config") *> IO(source.close)
-    )
+    )(source => debugWithThread(s"< closing Source to config") *> IO(source.close))
 
   val config = "exampleConnectURL"
 }
@@ -39,7 +36,7 @@ object Config {
   def fromSource(source: Source): IO[Config] =
     for {
       config <- IO(Config(source.getLines().next()))
-      _ <- debugWithThread(s"read $config")
+      _      <- debugWithThread(s"read $config")
     } yield config
 }
 
